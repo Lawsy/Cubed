@@ -12,6 +12,7 @@ import com.jme3.cubed.Face;
 import com.jme3.cubed.MaterialManager;
 import com.jme3.cubed.math.Vector3i;
 import com.jme3.cubed.render.GreedyMesher;
+import com.jme3.cubed.render.MarchingCubesMesher;
 import com.jme3.cubed.render.NaiveMesher;
 import com.jme3.cubed.render.VoxelMesher;
 import com.jme3.cubed.test.blocks.Block_Dirt;
@@ -45,7 +46,7 @@ public class CubedTest extends SimpleApplication {
     private BlockMaterial bm;
     private boolean wireframe = false;
     ChunkTerrainControl ctc;
-    ArrayList<VoxelMesher> meshers = new ArrayList<>(Arrays.asList(new NaiveMesher(), new GreedyMesher()));
+    ArrayList<VoxelMesher> meshers = new ArrayList<>(Arrays.asList(new NaiveMesher(), new MarchingCubesMesher(), new GreedyMesher()));
     private int currentMesh = 0;
 
     public static void main(String[] args) {
@@ -86,8 +87,8 @@ public class CubedTest extends SimpleApplication {
         initTestBlocks();
         bm = new BlockMaterial(this.getAssetManager(), mm.getTexturePaths());
         bm.getAdditionalRenderState().setWireframe(wireframe);
-        
-        
+
+
         //initializeWater();
         setupLighting();
         inputManager.addMapping("toggle wireframe", new KeyTrigger(KeyInput.KEY_T));
@@ -186,8 +187,9 @@ public class CubedTest extends SimpleApplication {
                     point.setY(y);
                     if (y == 0) {
                         ctc.setBlock(Block_Stone.class, point, true);
-                    } else if (y > landHeight)
-                            continue;
+                    } else if (y > landHeight) {
+                        continue;
+                    }
                     if (y == landHeight) {
                         ctc.setBlock(Block_Grass.class, point, true);
                     } else if (y >= landHeight - dirtHeight) {
