@@ -1,10 +1,12 @@
 /**
  * The MIT License (MIT)
  *
- * Copyright (c) 2013 Mikola Lysenko - https://github.com/mikolalysenko/greedy-mesher
- * 
- * Adaptation to Java by Robert O'Leary - https://github.com/roboleary/GreedyMesh
- * Minor updates to allow Texturing by Nick Minkler
+ * Copyright (c) 2013 Mikola Lysenko -
+ * https://github.com/mikolalysenko/greedy-mesher
+ *
+ * Adaptation to Java by Robert O'Leary -
+ * https://github.com/roboleary/GreedyMesh Minor updates to allow Texturing by
+ * Nick Minkler
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +23,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package com.jme3.cubed.render;
 
@@ -36,6 +38,8 @@ import java.util.ArrayList;
 
 public class GreedyMesher extends VoxelMesher {
 
+    private static long blocks = 0;
+
     @Override
     public Mesh generateMesh(ChunkTerrain terrain) {
         ArrayList<Vector3f> verts = new ArrayList<>();
@@ -44,15 +48,15 @@ public class GreedyMesher extends VoxelMesher {
         ArrayList<Float> normals = new ArrayList<>();
 
         Vector3i tmpI = new Vector3i();
-        
+
         int i, j, k, l, h, w, u, v, n, r, s, t;
- 
+
         Face face = null;
-        final int[] x = new int[] {0, 0, 0};
-        final int[] q = new int[] {0, 0, 0};
-        int[] du = new int[] {0, 0, 0};
-        int[] dv = new int[] {0, 0, 0};  
-        
+        final int[] x = new int[]{0, 0, 0};
+        final int[] q = new int[]{0, 0, 0};
+        int[] du = new int[]{0, 0, 0};
+        int[] dv = new int[]{0, 0, 0};
+
         final byte[] mask = new byte[ChunkTerrain.C_SIZE * ChunkTerrain.C_SIZE];
         // First pass is for front face, second pass is for back face
         for (boolean backFace = true, b = false; b != backFace; backFace = backFace && b, b = !b) {
@@ -60,12 +64,17 @@ public class GreedyMesher extends VoxelMesher {
             for (int d = 0; d < 3; d++) {
                 u = (d + 1) % 3;
                 v = (d + 2) % 3;
-                
-                x[0] = 0; x[1] = 0; x[2] = 0;
-                q[0] = 0; q[1] = 0; q[2] = 0; q[d] = 1;
-                
+
+                x[0] = 0;
+                x[1] = 0;
+                x[2] = 0;
+                q[0] = 0;
+                q[1] = 0;
+                q[2] = 0;
+                q[d] = 1;
+
                 // Keep track of what face we are computing
-                if (d ==0) {
+                if (d == 0) {
                     face = backFace ? Face.RIGHT : Face.LEFT;
                 } else if (d == 1) {
                     face = backFace ? Face.TOP : Face.BOTTOM;
@@ -77,19 +86,21 @@ public class GreedyMesher extends VoxelMesher {
                     n = 0;
                     for (x[v] = 0; x[v] < ChunkTerrain.C_SIZE; x[v]++) {
                         for (x[u] = 0; x[u] < ChunkTerrain.C_SIZE; x[u]++) {
+                            blocks++;
                             tmpI.set(x[0], x[1], x[2]);
                             mask[n++] = terrain.isFaceVisible(tmpI, face) ? terrain.getBlock(tmpI) : 0;
                         }
                     }
-                    
+
                     n = 0;
                     for (j = 0; j < ChunkTerrain.C_SIZE; j++) {
-                        for (i = 0; i < ChunkTerrain.C_SIZE; ) {
+                        for (i = 0; i < ChunkTerrain.C_SIZE;) {
                             // Loop until we find a start point
                             if (mask[n] != 0) {
                                 // Find the width of this mask section, w == current width
-                                for (w = 1; w + i < ChunkTerrain.C_SIZE && mask[n + w] != 0 && mask[n + w] == mask[n]; w++) { }
-                                
+                                for (w = 1; w + i < ChunkTerrain.C_SIZE && mask[n + w] != 0 && mask[n + w] == mask[n]; w++) {
+                                }
+
                                 boolean done = false;
                                 // find the height of the mask section, h == current height
                                 for (h = 1; j + h < ChunkTerrain.C_SIZE; h++) {
@@ -100,12 +111,20 @@ public class GreedyMesher extends VoxelMesher {
                                             break;
                                         }
                                     }
-                                    if (done) break;
+                                    if (done) {
+                                        break;
+                                    }
                                 }
                                 x[u] = i;
                                 x[v] = j;
-                                du[0] = 0; du[1] = 0; du[2] = 0; du[u] = w;
-                                dv[0] = 0; dv[1] = 0; dv[2] = 0; dv[v] = h;
+                                du[0] = 0;
+                                du[1] = 0;
+                                du[2] = 0;
+                                du[u] = w;
+                                dv[0] = 0;
+                                dv[1] = 0;
+                                dv[2] = 0;
+                                dv[v] = h;
                                 if (!backFace) {
                                     r = x[0];
                                     s = x[1];
@@ -119,7 +138,7 @@ public class GreedyMesher extends VoxelMesher {
                                 Vector3f vec1 = new Vector3f(r + du[0], s + du[1], t + du[2]);
                                 Vector3f vec2 = new Vector3f(r + dv[0], s + dv[1], t + dv[2]);
                                 Vector3f vec3 = new Vector3f(r + du[0] + dv[0], s + du[1] + dv[1], t + du[2] + dv[2]);
-                                
+
                                 // Each face has a specific order of vertices otherwise the textures rotate incorrectly
                                 // width/height are flipped when dealing with left/right/bottom face due to how rotation of dimensions works, and what order the greedy mesher merges them
                                 switch (face) {
@@ -149,7 +168,7 @@ public class GreedyMesher extends VoxelMesher {
                                         writeTextureCoords(textCoords, terrain, tmpI.set(x[0], x[1], x[2]), face, w, h, MaterialManager.getInstance().getType(mask[n]).getSkin());
                                         break;
                                 }
-                                
+
                                 // Clear the mask
                                 for (l = 0; l < h; ++l) {
                                     for (k = 0; k < w; ++k) {
@@ -171,7 +190,14 @@ public class GreedyMesher extends VoxelMesher {
         if (indices.isEmpty()) {
             return null;
         }
+
+
+
+
+        System.out.printf("Block count: %d", blocks).println();
+
+
+
         return genMesh(verts, textCoords, indices, normals);
     }
-    
 }

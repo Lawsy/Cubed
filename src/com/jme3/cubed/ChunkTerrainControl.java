@@ -14,6 +14,7 @@ import java.util.Map;
  * @author Nicholas Minkler <sleaker@gmail.com>
  */
 public class ChunkTerrainControl extends AbstractControl {
+
     private Node chunkRoot;
     private BlockMaterial blockMaterial;
     private Map<Vector3i, ChunkTerrain> chunks;
@@ -26,9 +27,10 @@ public class ChunkTerrainControl extends AbstractControl {
         this.mesher = mesher;
         chunks = new HashMap<>();
     }
-    
+
     /**
-     * Sends an update call to all <code>ChunkTerrain</code>'s attached to the the ChunkControl
+     * Sends an update call to all
+     * <code>ChunkTerrain</code>'s attached to the the ChunkControl
      */
     @Override
     protected void controlUpdate(float tpf) {
@@ -39,9 +41,8 @@ public class ChunkTerrainControl extends AbstractControl {
 
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
-        
     }
-    
+
     public void setBlock(Class<? extends Block> blockClass, Vector3i loc, boolean gen) {
         Vector3i pos = worldToChunkVec(loc);
         ChunkTerrain terrain = getTerrain(pos);
@@ -56,29 +57,31 @@ public class ChunkTerrainControl extends AbstractControl {
         }
         terrain.setBlock(blockClass, loc.getX() & ChunkTerrain.MASK, loc.getY() & ChunkTerrain.MASK, loc.getZ() & ChunkTerrain.MASK);
     }
-    
+
     public BlockMaterial getMaterial() {
         return blockMaterial;
     }
-    
+
     /**
      * Gets a ChunkTerrain from the given chunk vector
+     *
      * @param vec
      * @return chunk
      */
     public ChunkTerrain getTerrain(Vector3i vec) {
         return chunks.get(vec);
     }
-    
+
     /**
      * Gets a Chunk from the given Block vector
+     *
      * @param vec
      * @return chunk
      */
     public ChunkTerrain getTerrainLocal(Vector3i vec) {
-        return getTerrain(worldToChunkVec(vec)); 
+        return getTerrain(worldToChunkVec(vec));
     }
-    
+
     public byte getBlock(Vector3i vec) {
         ChunkTerrain terrain = getTerrainLocal(vec);
         if (terrain != null) {
@@ -87,19 +90,20 @@ public class ChunkTerrainControl extends AbstractControl {
             return 0;
         }
     }
+
     private Vector3i worldToChunkVec(Vector3i vec) {
         return new Vector3i(vec.getX() >> ChunkTerrain.C_BITS, vec.getY() >> ChunkTerrain.C_BITS, vec.getZ() >> ChunkTerrain.C_BITS);
     }
-    
+
     public void setMesher(VoxelMesher mesher) {
         this.mesher = mesher;
         switchMesher();
     }
-    
+
     public VoxelMesher getMesher() {
         return this.mesher;
     }
-        
+
     public void switchMesher() {
         this.greedy = !greedy;
         for (ChunkTerrain terrain : chunks.values()) {

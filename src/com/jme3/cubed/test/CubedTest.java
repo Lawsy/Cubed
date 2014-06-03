@@ -26,7 +26,6 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.SceneProcessor;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.system.AppSettings;
@@ -98,9 +97,10 @@ public class CubedTest extends SimpleApplication {
         //The terrain is a jME-Control, you can add it
         //to a node of the scenegraph to display it
         Node terrainNode = new Node("ChunkTerrain");
-        ctc = new ChunkTerrainControl(terrainNode, bm, meshers.get(currentMesh));
+//        ctc = new ChunkTerrainControl(terrainNode, bm, meshers.get(currentMesh));
+        ctc = new ChunkTerrainControl(terrainNode, bm, new GreedyMesher());
         terrainNode.addControl(ctc);
-        terrainNode.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+//        terrainNode.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         this.rootNode.attachChild(terrainNode);
 
         // TODO: finish fixing noise.
@@ -111,7 +111,7 @@ public class CubedTest extends SimpleApplication {
 
         cam.setLocation(new Vector3f(-10, 64, 16));
         cam.lookAtDirection(new Vector3f(1, -0.56f, -1), Vector3f.UNIT_Y);
-        flyCam.setMoveSpeed(50);
+        flyCam.setMoveSpeed(100);
     }
 
     private void initTestBlocks() {
@@ -168,6 +168,24 @@ public class CubedTest extends SimpleApplication {
         return filterPostProcessor;
     }
 
+//    private void genTerrainFromNoise(ChunkTerrainControl ctc) {
+//        Vector3i point = new Vector3i();
+//        for (int x = -160; x < 160; x++) {
+//            point.setX(x);
+//            for (int z = -160; z < 160; z++) {
+//                point.setZ(z);
+//                for (int y = 0; y < 64; y++) {
+//                    point.setY(y);
+//                    ctc.setBlock(Block_Grass.class, point, true);
+//                }
+//            }
+//        }
+//    }
+    private static int hash(int x, int y) {
+        int hash = x * 3422543 ^ y * 432959;
+        return hash * hash * (hash + 324319);
+    }
+
     private void genTerrainFromNoise(ChunkTerrainControl ctc) {
         Perlin noise = new Perlin();
         noise.setFrequency(0.01);
@@ -200,10 +218,5 @@ public class CubedTest extends SimpleApplication {
                 }
             }
         }
-    }
-
-    private static int hash(int x, int y) {
-        int hash = x * 3422543 ^ y * 432959;
-        return hash * hash * (hash + 324319);
     }
 }
